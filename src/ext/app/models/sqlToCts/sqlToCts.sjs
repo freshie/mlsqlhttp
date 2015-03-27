@@ -48,7 +48,7 @@
 		// checks to see if value is wrapped in quotes or double quotes
 		// then removes 1st and last char of the string
 		if (value.indexOf('"') === 0 || value.indexOf("'") === 0){
-			value = fn.substring(value, 2, value.length -2 )
+			value = value.substring(1, value.length - 1)
 		}
 		
 		if(WhereIn["operator"] === "="){
