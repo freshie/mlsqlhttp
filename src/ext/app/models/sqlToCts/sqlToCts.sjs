@@ -1,19 +1,19 @@
 (function(exports) {
 	"use strict";
-	var simpleSqlParser = require("lib/simpleSqlParser.sjs")
+	var simpleSqlParser = require("lib/simpleSqlParser.sjs");
 
 	/*
 		Looks at where object to decide what to search over
 	*/
 	function buildWhere(WhereIn){
 	  if(WhereIn.hasOwnProperty("logic")){
-	    return buildWhereHelperTerms(WhereIn)
+	    return buildWhereHelperTerms(WhereIn);
 	  } else if (WhereIn.hasOwnProperty("operator")){
-	  	return buildWhereHelperOperator(WhereIn)
+	  	return buildWhereHelperOperator(WhereIn);
 	  } else {
 	  	// at this point where is a string that is a colum name
 	  	// we use a cts.elementQuery to make sure that the document has that colum in it
-	    return  cts.elementQuery(WhereIn, cts.andQuery([]))
+	    return  cts.elementQuery(WhereIn, cts.andQuery([]));
 	  }
 	}
 
@@ -27,15 +27,15 @@
 	    	numberOfTerms = WhereIn["terms"].length;
 
 	    for (var i = 0; i < numberOfTerms; i++) {
-	       terms.push(buildWhere(WhereIn["terms"][i]))
+	       terms.push(buildWhere(WhereIn["terms"][i]));
 	    }
 
 	    if(WhereIn["logic"] === "AND"){
-	      return cts.andQuery(terms)
+	      return cts.andQuery(terms);
 	    } else if (WhereIn["logic"] === "OR") {
-	      return cts.orQuery(terms)
+	      return cts.orQuery(terms);
 	    } else {
-	      return cts.andQuery(terms)
+	      return cts.andQuery(terms);
 	    }
 	}
 
@@ -44,17 +44,17 @@
 	   looks at the  right proporty to decide what options to use
 	 */
 	function buildWhereHelperOperator(WhereIn){
-		var value = WhereIn["right"]
+		var value = WhereIn["right"];
 		// checks to see if value is wrapped in quotes or double quotes
-		// then removes 1st and last char of the string
+		// then removes 1st and last part of the string
 		if (value.indexOf('"') === 0 || value.indexOf("'") === 0){
-			value = value.substring(1, value.length - 1)
+			value = value.substring(1, value.length - 1);
 		}
 		
 		if(WhereIn["operator"] === "="){
-	     return cts.elementValueQuery(WhereIn["left"], value)
+	     return cts.elementValueQuery(WhereIn["left"], value);
 	    } else if (WhereIn["operator"] === "!=" || WhereIn["operator"] === "IS NOT"){
-	      return cts.notQuery(cts.elementValueQuery(WhereIn["left"], value))
+	      return cts.notQuery(cts.elementValueQuery(WhereIn["left"], value));
 	    }
 
 	}
@@ -63,7 +63,7 @@
 	   looks at the first table and wrapps it into a collection query
 	*/
 	function buildFrom(FromIn){
-		return cts.collectionQuery(FromIn[0]["table"])
+		return cts.collectionQuery(FromIn[0]["table"]);
 	}
 
 	/*
@@ -73,9 +73,9 @@
 	*/
 	function convert(sql){
 
-		var sqlObjc = simpleSqlParser.sql2ast(sql)
-		var query = cts.andQuery([buildWhere(sqlObjc["WHERE"]),buildFrom(sqlObjc["FROM"])])
-	    return query
+		var sqlObjc = simpleSqlParser.sql2ast(sql);
+		var query = cts.andQuery([buildWhere(sqlObjc["WHERE"]),buildFrom(sqlObjc["FROM"])]);
+	    return [query,sqlObjc];
 	}
 
 	// Exports
