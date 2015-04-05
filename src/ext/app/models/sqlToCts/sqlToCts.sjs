@@ -1,4 +1,4 @@
-(function(exports) {
+(function(exports){
 	"use strict";
 	var simpleSqlParser = require("lib/simpleSqlParser.sjs");
 
@@ -6,7 +6,7 @@
 		Looks at where object to decide what to search over
 	*/
 	function buildWhere(WhereIn){
-	  if(WhereIn.hasOwnProperty("logic")){
+	  if (WhereIn.hasOwnProperty("logic")){
 	    return buildWhereHelperTerms(WhereIn);
 	  } else if (WhereIn.hasOwnProperty("operator")){
 	  	return buildWhereHelperOperator(WhereIn);
@@ -30,7 +30,7 @@
 	       terms.push(buildWhere(WhereIn["terms"][i]));
 	    }
 
-	    if(WhereIn["logic"] === "AND"){
+	    if (WhereIn["logic"] === "AND"){
 	      return cts.andQuery(terms);
 	    } else if (WhereIn["logic"] === "OR") {
 	      return cts.orQuery(terms);
@@ -51,7 +51,7 @@
 			value = value.substring(1, value.length - 1);
 		}
 		
-		if(WhereIn["operator"] === "="){
+		if (WhereIn["operator"] === "="){
 	     return cts.elementValueQuery(WhereIn["left"], value);
 	    } else if (WhereIn["operator"] === "!=" || WhereIn["operator"] === "IS NOT"){
 	      return cts.notQuery(cts.elementValueQuery(WhereIn["left"], value));
@@ -73,8 +73,8 @@
 	*/
 	function convert(sql){
 
-		var sqlObjc = simpleSqlParser.sql2ast(sql);
-		var query = cts.andQuery([buildWhere(sqlObjc["WHERE"]),buildFrom(sqlObjc["FROM"])]);
+		var sqlObjc = simpleSqlParser.sql2ast(sql)
+			query = cts.andQuery([buildWhere(sqlObjc["WHERE"]),buildFrom(sqlObjc["FROM"])]);
 	    return [query,sqlObjc];
 	}
 
@@ -91,8 +91,74 @@
 		
 	}
 
+	/*
+		Format the results into Json with some metadata
+	*/
+	function format(res, query, sql, sqlObjc){
+		var data = [],
+			metadata,
+			results;
+
+		
+		metadata =	
+	    {
+	      "columns": {},
+	      "sql": sql,
+	      "sqlObjc": sqlObjc,
+	      "cts:query": query
+	    };
+		
+		results = 
+		{
+		  "metadata": metadata, 
+		  "data": data
+		};
+
+		while (true) {
+			var doc = res.next(),
+				colnms,
+				colnmsObj = {};
+				
+			if (doc.done == true){ 
+			  break; 
+			}
+
+		    colnms = doc.value.root.xpath("//element()[fn:exists(text())]")
+		    
+		    while (true) {
+		        var colnm = colnms.next(),
+		        	localname,
+		        	value
+		         
+		         if (colnm.done == true ){ 
+		           break;
+		         }
+
+		        localname = fn.localName(colnm.value);
+		        value = fn.string(colnm.value);
+
+		        if (metadata["columns"].hasOwnProperty(localname) && metadata["columns"][localname].maxlength > value.length ){
+		        
+		        } else {
+		           
+		           metadata["columns"][localname] = {
+		            maxlength: value.length
+		          };
+
+		        }
+		        
+		        colnmsObj[localname] = value;
+		    }
+		      
+		   data.push(colnmsObj);
+		};
+
+		return results;
+	}
+
 	// Exports
 	exports.convert = convert;
 	exports.search = search;
+	exports.format = format;
 
 }(typeof exports === "undefined" ? (this.sqlToCts = {}) : exports));
