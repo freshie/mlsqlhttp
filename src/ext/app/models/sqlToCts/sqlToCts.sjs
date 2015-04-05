@@ -78,7 +78,21 @@
 	    return [query,sqlObjc];
 	}
 
+	/*
+		Take the convert object and runs a cts search 
+		uses the SQl part of the convert object to Limit the search
+	*/
+	function search(convert){
+		if (convert[1].hasOwnProperty("LIMIT")){
+			return fn.subsequence(cts.search(convert[0]), convert[1]["LIMIT"]["from"] + 1, convert[1]["LIMIT"]["nb"] )
+		} else {
+			return cts.search(convert[0])
+		}
+		
+	}
+
 	// Exports
 	exports.convert = convert;
+	exports.search = search;
 
 }(typeof exports === "undefined" ? (this.sqlToCts = {}) : exports));
