@@ -82,11 +82,11 @@
 		Take the convert object and runs a cts search 
 		uses the SQl part of the convert object to Limit the search
 	*/
-	function search(convert){
-		if (convert[1].hasOwnProperty("LIMIT")){
-			return fn.subsequence(cts.search(convert[0]), convert[1]["LIMIT"]["from"] + 1, convert[1]["LIMIT"]["nb"] )
+	function search(query, sqlObjc){
+		if (sqlObjc.hasOwnProperty("LIMIT")){
+			return fn.subsequence(cts.search(query), sqlObjc["LIMIT"]["from"] + 1, sqlObjc["LIMIT"]["nb"] )
 		} else {
-			return cts.search(convert[0])
+			return cts.search(query)
 		}
 		
 	}
