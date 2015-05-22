@@ -1,3 +1,5 @@
-var sqlToCts = require("/sqlToCts/sqlToCts.sjs")
-    
-sqlToCts.convert("SELECT table1.column1, UPPER(table2.column2) AS 'alias for column2' FROM table1 LEFT JOIN table2 ON `table1`.`id` = table2.id_table1 WHERE table2.column1 AND (table2.column2 != 5 OR table.column3 IS NOT NULL) ORDER BY table1.id ASC, table2.id DESC LIMIT 5;")
+var sqlToCts = require("sqlToCts.sjs")
+var sql = "SELECT * FROM temperatures WHERE city='Derby' LIMIT 2"     
+var query = sqlToCts.convert("SELECT * FROM temperatures WHERE city='Derby' LIMIT 2")
+var res =  sqlToCts.search(query[0], query[1])
+sqlToCts.format(res,query[0], sql, query[1])
