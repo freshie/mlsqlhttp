@@ -55,6 +55,10 @@
 	     return cts.elementValueQuery(WhereIn["left"], value);
 	    } else if (WhereIn["operator"] === "!=" || WhereIn["operator"] === "IS NOT"){
 	      return cts.notQuery(cts.elementValueQuery(WhereIn["left"], value));
+	    } else if (WhereIn["operator"] === ">") {
+	      return cts.elementRangeQuery(WhereIn["left"],">", value)
+	    } else if (WhereIn["operator"] === "<") {
+	      return cts.elementRangeQuery(WhereIn["left"],"<", value)
 	    }
 
 	}
